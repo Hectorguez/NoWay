@@ -1,0 +1,20 @@
+.ioc-list {
+  width: 100%;
+  max-width: 360px;
+  background-color: #5bc64cff;
+  border-radius: 12px;
+}
+
+.ioc-sublist {
+    sx: 12,
+}
+
+.inbox-text {
+  color: #1e3a8a; /* azul oscuro */
+  font-weight: 600;
+}
+
+.starred-text {
+  color: #b91c1c; /* rojo oscuro */
+  font-weight: 600;
+}
