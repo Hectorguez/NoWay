@@ -1,219 +1,95 @@
-import { useState, useEffect } from 'react';
-import Box from '@mui/material/Box';
-import TextField from '@mui/material/TextField';
-import MenuItem from '@mui/material/MenuItem';
-import FilledInput from '@mui/material/FilledInput';
-import InputLabel from '@mui/material/InputLabel';
-import FormControl from '@mui/material/FormControl';
-import IconButton from '@mui/material/IconButton';
+import React from 'react';
+import { Box, TextField, MenuItem, FormControl, InputLabel, OutlinedInput, Button } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
-import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import Alert from '@mui/material/Alert';
-import CheckIcon from '@mui/icons-material/Check';
-import WarningAmberIcon from '@mui/icons-material/WarningAmber';
-import Collapse from '@mui/material/Collapse';
 
-const IOCTypeValues = [
-  { value: 'ip', label: 'IP' },
-  { value: 'url', label: 'URL' },
-  { value: 'domain', label: 'Domain' },
+const currencies = [
+    { value: 'USD', label: 'USD' },
+    { value: 'EUR', label: 'EUR' },
+    { value: 'GBP', label: 'GBP' },
+    { value: 'JPY', label: 'JPY' },
 ];
 
 export const AddIOC: React.FC = () => {
-  // Lista dinámica de IoCs
-  const [iocList, setIocList] = useState<
-    { iocValue: string; iocType: string; iocName: string }[]
-  >([]);
-
-  // Estados para mostrar alertas
-  const [alertMessage, setAlertMessage] = useState('');
-  const [alertType, setAlertType] = useState<'success' | 'warning'>('success');
-  const [showAlert, setShowAlert] = useState(false);
-
-  // Ocultar alert automáticamente después de 3s
-  useEffect(() => {
-    if (showAlert) {
-      const timer = setTimeout(() => setShowAlert(false), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [showAlert]);
-
-  // Actualiza valores
-  const handleChange = (index: number, field: string, value: string) => {
-    const newList = [...iocList];
-    newList[index] = { ...newList[index], [field]: value };
-    setIocList(newList);
-  };
-
-  // Añadir fila
-  const handleAddRow = () => {
-    setIocList([...iocList, { iocValue: '', iocType: '', iocName: '' }]);
-  };
-
-  // Eliminar fila
-  const handleRemoveRow = (index: number) => {
-    const newList = iocList.filter((_, i) => i !== index);
-    setIocList(newList);
-  };
-
-  // Enviar todo
-  const handleSend = () => {
-    if (iocList.length === 0) {
-      setAlertType('warning');
-      setAlertMessage('Agrega al menos un IoC antes de enviar.');
-      setShowAlert(true);
-      return;
-    }
-
-    const incomplete = iocList.some(
-      (ioc) => !ioc.iocValue || !ioc.iocType || !ioc.iocName
-    );
-    if (incomplete) {
-      setAlertType('warning');
-      setAlertMessage('Por favor, completa todos los campos antes de enviar.');
-      setShowAlert(true);
-      return;
-    }
-
-    const message = iocList
-      .map(
-        (ioc, i) =>
-          `\n#${i + 1} → ${ioc.iocValue} (${ioc.iocType}) - ${ioc.iocName}`
-      )
-
-    setAlertType('success');
-    setAlertMessage(`✅ Enviados correctamente: ${message}`);
-    setShowAlert(true);
-    setIocList([]); // limpiar después de enviar
-  };
-
-  return (
-    <Box 
-      component="form"
-      sx={{
-        '& .MuiTextField-root': { m: 1, width: '25ch' },
-        backgroundColor: '#d2b6b6ff',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        p: 2,
-        borderRadius: 4,
-        gap: 2,
-      }}
-      noValidate
-      autoComplete="off"
-    >
-      {/* Alert */}
-      <Collapse in={showAlert} sx={{ width: '90%' }}>
-        <Alert
-          icon={
-            alertType === 'success' ? (
-              <CheckIcon fontSize="inherit" />
-            ) : (
-              <WarningAmberIcon fontSize="inherit" />
-            )
-          }
-          severity={alertType}
-          sx={{ mb: 2, whiteSpace: 'pre-line'}}
-        >
-          {alertMessage}
-        </Alert>
-      </Collapse>
-
-      {/* Lista dinámica */}
-      {iocList.map((ioc, index) => (
+    return (
         <Box
-          key={index}
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexWrap: 'wrap',
-            backgroundColor: '#f8e7e7',
-            borderRadius: 3,
-            p: 2,
-            boxShadow: 2,
-            width: '90%',
-            position: 'relative',
-          }}
+            className="
+          grid 
+          grid-cols-1 md:grid-cols-2
+          gap-4
+          p-8
+          rounded-2xl
+          shadow-md
+          bg-gradient-to-br from-gray-50 via-white to-gray-100
+          border border-gray-200
+          hover:shadow-lg
+          transition-all duration-300 ease-in-out
+          mx-auto
+          max-w-3xl
+        "
         >
-          {/* Campos */}
-          <TextField
-            required
-            label="IoC value"
-            variant="filled"
-            value={ioc.iocValue}
-            onChange={(e) => handleChange(index, 'iocValue', e.target.value)}
-          />
-
-          <TextField
-            required
-            select
-            label="Tipo"
-            variant="filled"
-            value={ioc.iocType}
-            onChange={(e) => handleChange(index, 'iocType', e.target.value)}
-          >
-            {IOCTypeValues.map((option) => (
-              <MenuItem key={option.value} value={option.value}>
-                {option.label}
-              </MenuItem>
-            ))}
-          </TextField>
-
-          <FormControl sx={{ m: 1, width: '65ch' }} variant="filled">
-            <InputLabel required>IoC Name</InputLabel>
-            <FilledInput
-              value={ioc.iocName}
-              onChange={(e) => handleChange(index, 'iocName', e.target.value)}
+            {/* Campo Descripción */}
+            <TextField
+                className="w-full text-sm"
+                id="filled-multiline-static"
+                label="Descripción"
+                multiline
+                rows={10}
+                size="small"
+                placeholder="Escribe una descripción..."
+                InputProps={{
+                    className:
+                        "bg-white rounded-lg focus:bg-gray-50 transition-all text-sm py-1",
+                }}
+                InputLabelProps={{ className: 'text-gray-600 text-sm' }}
             />
-          </FormControl>
 
-          {/* Botón eliminar fila */}
-          <IconButton
-            aria-label="delete"
-            color="error"
-            onClick={() => handleRemoveRow(index)}
-            sx={{
-              position: 'absolute',
-              top: 5,
-              right: 5,
-              '&:hover': { backgroundColor: '#ffdddd' },
-            }}
-          >
-            <DeleteOutlineIcon />
-          </IconButton>
+            {/* Agrupación de Moneda + Monto */}
+            <Box className="flex flex-col gap-4">
+                {/* Selector de moneda */}
+                <TextField
+                    id="filled-select-currency"
+                    select
+                    label="Moneda"
+                    defaultValue="EUR"
+                    helperText="Selecciona tu moneda"
+                    size="small"
+                    className="w-full text-sm"
+                    InputProps={{
+                        className:
+                            "bg-white rounded-lg focus:bg-gray-50 transition-all text-sm py-1",
+                    }}
+                    InputLabelProps={{ className: 'text-gray-600 text-sm' }}
+                    FormHelperTextProps={{ className: 'text-xs text-gray-400' }}
+                >
+                    {currencies.map((option) => (
+                        <MenuItem key={option.value} value={option.value} className="text-sm">
+                            {option.label}
+                        </MenuItem>
+                    ))}
+                </TextField>
+
+                {/* Campo de monto */}
+                <TextField
+                    id="outlined-multiline-flexible"
+                    label="Multiline"
+                    multiline
+                    maxRows={3}
+                    size="small"
+                    className="w-full text-sm"
+                    placeholder="Escribe algo..."
+                    InputProps={{
+                        className:
+                            "bg-white rounded-lg focus:bg-gray-50 transition-all text-sm py-1",
+                    }}
+                    InputLabelProps={{ className: "text-gray-600 text-sm" }}
+                />
+                <Box className="mt-5 self-center">
+                    <Button
+                        variant="contained" endIcon={<SendIcon />}>
+                        Send
+                    </Button>
+                </Box>
+            </Box>
         </Box>
-      ))}
-
-      {/* Botones de acción */}
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2,  }}>
-        <IconButton
-          aria-label="add"
-          color="secondary"
-          onClick={handleAddRow}
-          sx={{
-            backgroundColor: '#b58ce6',
-            '&:hover': { backgroundColor: '#9c6fde' },
-          }}
-        >
-          <AddCircleOutlineIcon sx={{ color: 'white' }} />
-        </IconButton>
-
-        <IconButton
-          aria-label="send"
-          color="primary"
-          onClick={handleSend}
-          sx={{
-            backgroundColor: '#3b82f6',
-            '&:hover': { backgroundColor: '#2563eb' },
-          }}
-        >
-          <SendIcon sx={{ color: 'white' }} />
-        </IconButton>
-      </Box>
-    </Box>
-  );
+    );
 };
